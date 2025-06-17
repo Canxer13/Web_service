@@ -1,0 +1,456 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Dokumentasi API Inventaris",
+        "description": "Dokumentasi lengkap untuk REST API manajemen inventaris barang. API ini mencakup autentikasi, manajemen item, dan sistem role & permission.",
+        "contact": {
+            "email": "admin@inventaris.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://my-default-host.com",
+            "description": "Server API Utama"
+        }
+    ],
+    "paths": {
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Autentikasi"
+                ],
+                "summary": "Registrasi User Baru",
+                "description": "Membuat akun pengguna baru dan langsung mengembalikan token.",
+                "operationId": "8e4e3cb7b46126f4696379d3c7eeb4ad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "User Tester"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "tester@mail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registrasi Berhasil"
+                    },
+                    "422": {
+                        "description": "Data tidak valid"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Autentikasi"
+                ],
+                "summary": "Login Pengguna",
+                "description": "Mengautentikasi pengguna dan mengembalikan Bearer Token jika berhasil.",
+                "operationId": "222b2625838e3c57e017987f73598fda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@mail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login Berhasil"
+                    },
+                    "401": {
+                        "description": "Unauthorized (Kredensial salah)"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Autentikasi"
+                ],
+                "summary": "Logout Pengguna",
+                "description": "Mencabut token yang sedang aktif. Memerlukan autentikasi.",
+                "operationId": "ad65cbbd4e9f201619eae184a5961a98",
+                "responses": {
+                    "200": {
+                        "description": "Logout Berhasil"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/items": {
+            "get": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Melihat semua data barang",
+                "description": "Mengambil daftar semua barang. Akses: Admin, Manager, Staff.",
+                "operationId": "53e44209d7fe56acf154d9c0d47e5069",
+                "responses": {
+                    "200": {
+                        "description": "Operasi berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Item"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "view-items"
+                        ]
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Membuat barang baru",
+                "description": "Menambahkan barang baru ke inventaris. Akses: Admin, Manager.",
+                "operationId": "371ad8f4244d53c482a14de9004905a4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "sku",
+                                    "quantity",
+                                    "price"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "SSD NVMe 1TB"
+                                    },
+                                    "sku": {
+                                        "type": "string",
+                                        "example": "SSD-NVME-1TB"
+                                    },
+                                    "quantity": {
+                                        "type": "integer",
+                                        "example": 50
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 1200000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Barang berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Item"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden (Tidak punya izin)"
+                    },
+                    "422": {
+                        "description": "Data tidak valid"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "create-items"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/api/items/{id}": {
+            "get": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Melihat barang spesifik",
+                "description": "Mengambil detail satu barang berdasarkan ID. Akses: Admin, Manager, Staff.",
+                "operationId": "cf72b0674e86263c9f13097ae1198063",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID dari barang",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operasi berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Item"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Barang tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "view-items"
+                        ]
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Mengupdate barang",
+                "description": "Memperbarui data barang yang sudah ada. Akses: Admin, Manager.",
+                "operationId": "5946ad0f76a90167421f69b2ba2a086a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID dari barang",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "description": "Anda bisa mengirim hanya field yang ingin diubah.",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "SSD NVMe 1TB Gen4"
+                                    },
+                                    "quantity": {
+                                        "type": "integer",
+                                        "example": 45
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Update berhasil"
+                    },
+                    "404": {
+                        "description": "Barang tidak ditemukan"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "edit-items"
+                        ]
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Menghapus barang",
+                "description": "Menghapus barang dari database. Akses: Hanya Admin.",
+                "operationId": "264a2ea4d554347870bc1216f33f30a7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID dari barang yang akan dihapus",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hapus berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Barang tidak ditemukan"
+                    },
+                    "403": {
+                        "description": "Forbidden (Tidak punya izin)"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "delete-items"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Item": {
+                "title": "Item Model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Macbook Pro M3"
+                    },
+                    "sku": {
+                        "type": "string",
+                        "example": "MBP-M3-001"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 35000000
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Masukkan Bearer Token yang didapat saat login.",
+                "name": "Authorization",
+                "in": "header",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Autentikasi",
+            "description": "Autentikasi"
+        },
+        {
+            "name": "Inventory",
+            "description": "Inventory"
+        }
+    ]
+}
